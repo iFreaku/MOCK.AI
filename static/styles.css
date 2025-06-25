@@ -1,0 +1,221 @@
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #1e1e2f;
+  color: #f8f8f2;
+  padding: 2rem;
+}
+
+.title {
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 2rem;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.container {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.editor-section, .output-section {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.editor-section {
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px 0 0 10px;
+}
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: rgba(30, 143, 255, 0);
+  backdrop-filter: blur(8px);
+  border-radius: 10px 0px 0 0;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.editor-header button {
+  background-color: rgba(40, 167, 69, 0.3);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  color: #ffffff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.editor-header button:hover {
+  background-color: rgba(33, 136, 56, 0.5);
+  transform: translateY(-1px);
+}
+
+.CodeMirror {
+  height: 500px !important;
+  font-size: 14px;
+  border-radius: 0 0 10px 0;
+  background-color: transparent !important;
+  color: #f8f8f2;
+}
+
+.CodeMirror-gutters {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(5px);
+  color: #a0a0c0;
+}
+
+.output-section {
+  border-radius: 0 10px 10px 0;
+  position: relative;
+}
+
+.output-header {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+}
+
+#copy-button {
+  background-color: rgba(255, 193, 7, 0.3);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+#copy-button:hover {
+  background-color: rgba(224, 168, 0, 0.5);
+  transform: translateY(-1px);
+}
+
+.output-section pre {
+  margin: 0;
+  padding: 1rem;
+  height: 500px;
+  overflow-y: auto;
+  background-color: transparent !important;
+  border-radius: 0 10px 10px 0;
+  color: #f8f8f2;
+}
+
+.output-section code {
+  font-size: 14px;
+  display: block;
+  white-space: pre-wrap;
+}
+
+.hljs {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #f8f8f2;
+}
+
+.loading-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 5;
+}
+
+.loading-bar::before {
+  content: '';
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #1e90ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .editor-section, .output-section {
+    width: 100%;
+  }
+
+  .CodeMirror, .output-section pre {
+    height: 300px !important;
+  }
+
+  .output-section {
+    border-radius: 0 0 10px 10px;
+  }
+
+  .output-section pre {
+    border-radius: 0 0 10px 10px;
+  }
+
+  .output-section code {
+    font-size: 12px;
+  }
+
+  .editor-section {
+    border-radius: 10px 10px 0 0;
+  }
+}
+
+/* Custom scrollbar to match the vibe */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgba(255, 255, 255, 0.05); /* Translucent track */
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 193, 7, 0.5); /* Translucent yellow thumb */
+  border-radius: 5px;
+  border: 2px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(224, 168, 0, 0.7); /* Darker yellow on hover */
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 193, 7, 0.5) rgba(255, 255, 255, 0.05);
+}

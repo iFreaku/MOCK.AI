@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOCK AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <h1 class="title">MOCK AI</h1>
+  <div class="container">
+    <div class="editor-section">
+      <div class="editor-header">
+        <span>Input</span>
+        <button onclick="fetchData()">Generate 🚀</button>
+      </div>
+      <textarea id="code"></textarea>
+    </div>
+    <div class="output-section">
+      <div class="output-header">
+        <button id="copy-button" onclick="copyOutput()">Copy 📋</button>
+      </div>
+      <div id="loading-bar" class="loading-bar"></div>
+      <pre><code id="output"></code></pre>
+    </div>
+  </div>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/codemirror.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/mode/javascript/javascript.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script defer src="/static/script.js"></script>
+</body>
+</html>
