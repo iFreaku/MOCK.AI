@@ -4,7 +4,7 @@ import random
 from together import Together
 from typing import Literal
 
-keys = ["tgp_v1_Xp2S2XdPjfm2MiiaiNDbo6QVkVpAZxopd88VI6WUwy4", "tgp_v1_-NQNjOcfD6ywca2Jmt4v44fHKkPpEGbCTbM-oqioS8c", "tgp_v1_u2TjBV6sheB9aezOYbkayiZ-D1ZpdPx_s1YhyefrPw4"]
+keys = [os.getenv("KEYS")]
 model = "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"
 
 instructJSON = """
