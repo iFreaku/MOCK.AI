@@ -4,7 +4,7 @@ import random
 from together import Together
 from typing import Literal
 
-keys = [os.getenv("KEYS")]
+keys = f"[{os.getenv('KEYS')}]"
 model = "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"
 
 instructJSON = """
