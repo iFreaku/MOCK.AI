@@ -4,6 +4,8 @@ import mockai
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 
+print(mockai.ytgen("https://www.youtube.com/watch?v=v3qoy7qhhwE"))
+
 app = Flask(__name__)
 CORS(app)
 

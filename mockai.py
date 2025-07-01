@@ -3,6 +3,8 @@ import json
 import random
 from together import Together
 from typing import Literal
+from pytube import YouTube
+from youtube_comment_downloader import YoutubeCommentDownloader
 
 keys = json.loads(os.getenv('KEYS', '[]'))
 model = "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"
@@ -48,7 +50,6 @@ def generate(prompt: str, mock_type: Literal["json", "xml", "yaml", "html"], mes
     }.get(mock_type)
     
     ai = Together(api_key=random.choice(keys))
-    # Combine system instruction with provided messages
     full_messages = [
         {"role": "system", "content": instruct}
     ] + messages + [{"role": "user", "content": prompt}]
@@ -60,3 +61,52 @@ def generate(prompt: str, mock_type: Literal["json", "xml", "yaml", "html"], mes
     
     data = json.loads(response.choices[0].message.content)
     return data
+
+def ytgen(video_url: str):
+    try:
+        yt = YouTube(video_url)
+        title = yt.title
+        description = yt.description
+
+        downloader = YoutubeCommentDownloader()
+        comments = []
+        for comment in downloader.get_comments_from_url(video_url, sort_by="SORT_BY_POPULAR"):
+            if "text" in comment:
+                comments.append(comment["text"])
+            if len(comments) >= 100:
+                break
+
+        max_chars = 8000
+        header = f"Title: {title}\n\nDescription: {description}\n\nTop Comments:\n"
+        content = header
+        for i, comment in enumerate(comments):
+            line = f"{i+1}. {comment}\n"
+            if len(content) + len(line) > max_chars:
+                break
+            content += line
+
+        messages = [
+            {
+                "role": "system",
+                "content": """You are a smart YouTube comment summarizer 🤖.
+Your job is to write a <b>very short</b>, <i>concise</i> summary (1–3 lines only) of a YouTube video's comments and reactions.
+Use <b>HTML tags</b> (like <b>, <i>, <span>) for styling, and insert emojis 🎯 beside relevant words (like love ❤️, sad 😢, cringe 😬, music 🎵, edit ✂️).
+Don't use Markdown or JSON. Just return a styled, emoji-enhanced HTML string."""
+            },
+            {
+                "role": "user",
+                "content": content
+            }
+        ]
+
+        ai = Together(api_key=random.choice(keys))
+        response = ai.chat.completions.create(
+            model=model,
+            messages=messages
+        )
+        return response.choices[0].message.content.strip()
+
+    except Exception as e:
+        return str(e)
+
+
