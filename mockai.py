@@ -69,7 +69,7 @@ def ytgen(video_url: str):
 
         downloader = YoutubeCommentDownloader()
         comments = []
-        for comment in islice(downloader.get_comments_from_url(video_url, sort_by=0), 55):
+        for comment in islice(downloader.get_comments_from_url(video_url, sort_by=0), 100):
             if "text" in comment:
                 comments.append(comment["text"])
 
