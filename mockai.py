@@ -89,7 +89,8 @@ def ytgen(video_url: str):
                 "content": """You are a smart YouTube comment summarizer 🤖.
 Your job is to write a <b>brief</b>, concise summary of a YouTube video's comments and reactions.
 Use <b>HTML tags</b> (like <b>, <i>, <span>) for styling, and insert emojis 🎯 beside relevant words (like love ❤️, sad 😢, cringe 😬, music 🎵, edit ✂️).
-Don't use Markdown or JSON. Just return a styled, emoji-enhanced HTML string."""
+Don't use Markdown or JSON. Just return a styled, emoji-enhanced HTML string.
+Just the summary no extra system texts, and keep the emoji use subtle!"""
             },
             {
                 "role": "user",
