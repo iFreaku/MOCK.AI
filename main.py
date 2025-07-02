@@ -11,7 +11,6 @@ CORS(app)
 
 @app.route('/')
 def home():
-    print(mockai.ytgen("https://www.youtube.com/watch?v=v3qoy7qhhwE"))
     return render_template("index.html")
 
 @app.route('/yt')
