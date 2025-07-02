@@ -3,8 +3,10 @@ import json
 import random
 from together import Together
 from typing import Literal
-from pytube import YouTube
+from urllib.parse import urlparse, parse_qs
+from itertools import islice
 from youtube_comment_downloader import YoutubeCommentDownloader
+
 
 keys = json.loads(os.getenv('KEYS', '[]'))
 model = "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"
@@ -64,23 +66,17 @@ def generate(prompt: str, mock_type: Literal["json", "xml", "yaml", "html"], mes
 
 def ytgen(video_url: str):
     try:
-        yt = YouTube(video_url)
-        title = yt.title
-        description = yt.description
-        print(title, description)
+        video_id = parse_qs(urlparse(video_url).query).get("v", [""])[0]
 
         downloader = YoutubeCommentDownloader()
         comments = []
-        for comment in downloader.get_comments_from_url(video_url, sort_by="SORT_BY_POPULAR"):
+        for comment in islice(downloader.get_comments_from_url(video_url, sort_by=0), 50):
             if "text" in comment:
                 comments.append(comment["text"])
-                print(comment["text"])
-            if len(comments) >= 50:
-                break
 
+        # Trim to 8000 chars max
         max_chars = 8000
-        header = f"Title: {title}\n\nDescription: {description}\n\nTop Comments:\n"
-        content = header
+        content = f"Top Comments 50 comments:\n"
         for i, comment in enumerate(comments):
             line = f"{i+1}. {comment}\n"
             if len(content) + len(line) > max_chars:
@@ -106,7 +102,7 @@ Don't use Markdown or JSON. Just return a styled, emoji-enhanced HTML string."""
             model=model,
             messages=messages
         )
-        return response.choices[0].message.content.strip()
+        return response.choices[0].message.content
 
     except Exception as e:
         return str(e)
