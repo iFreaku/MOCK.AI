@@ -69,7 +69,7 @@ def ytgen(video_url: str):
 
         downloader = YoutubeCommentDownloader()
         comments = []
-        for comment in islice(downloader.get_comments_from_url(video_url, sort_by=0), 100):
+        for comment in islice(downloader.get_comments_from_url(video_url, sort_by=0), 55):
             if "text" in comment:
                 comments.append(comment["text"])
 
@@ -100,8 +100,7 @@ Just the summary no extra system texts, and keep the emoji use subtle!"""
         ai = Together(api_key=random.choice(keys))
         response = ai.chat.completions.create(
             model=model,
-            messages=messages,
-            max_tokens=512  # 🛡️ prevents 8192 token overflow
+            messages=messages
         )
 
         return response.choices[0].message.content.strip()
