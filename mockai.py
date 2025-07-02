@@ -70,13 +70,13 @@ def ytgen(video_url: str):
 
         downloader = YoutubeCommentDownloader()
         comments = []
-        for comment in islice(downloader.get_comments_from_url(video_url, sort_by=0), 50):
+        for comment in islice(downloader.get_comments_from_url(video_url, sort_by=0), 100):
             if "text" in comment:
                 comments.append(comment["text"])
 
         # Trim to 8000 chars max
         max_chars = 8000
-        content = f"Top Comments 50 comments:\n"
+        content = f"Top Comments:\n"
         for i, comment in enumerate(comments):
             line = f"{i+1}. {comment}\n"
             if len(content) + len(line) > max_chars:
