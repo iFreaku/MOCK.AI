@@ -7,7 +7,6 @@ from urllib.parse import urlparse, parse_qs
 from itertools import islice
 from youtube_comment_downloader import YoutubeCommentDownloader
 
-
 keys = json.loads(os.getenv('KEYS', '[]'))
 model = "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"
 
@@ -50,17 +49,17 @@ def generate(prompt: str, mock_type: Literal["json", "xml", "yaml", "html"], mes
     instruct = {
         "json": instructJSON,
     }.get(mock_type)
-    
+
     ai = Together(api_key=random.choice(keys))
     full_messages = [
         {"role": "system", "content": instruct}
     ] + messages + [{"role": "user", "content": prompt}]
-    
+
     response = ai.chat.completions.create(
         model=model,
         messages=full_messages
     )
-    
+
     data = json.loads(response.choices[0].message.content)
     return data
 
@@ -74,8 +73,8 @@ def ytgen(video_url: str):
             if "text" in comment:
                 comments.append(comment["text"])
 
-        # Trim to 8000 chars max
-        max_chars = 8000
+        # Trim to ~6500 chars max
+        max_chars = 6500
         content = f"Top Comments:\n"
         for i, comment in enumerate(comments):
             line = f"{i+1}. {comment}\n"
@@ -101,11 +100,11 @@ Just the summary no extra system texts, and keep the emoji use subtle!"""
         ai = Together(api_key=random.choice(keys))
         response = ai.chat.completions.create(
             model=model,
-            messages=messages
+            messages=messages,
+            max_tokens=512  # 🛡️ prevents 8192 token overflow
         )
-        return response.choices[0].message.content
+
+        return response.choices[0].message.content.strip()
 
     except Exception as e:
         return str(e)
-
-
