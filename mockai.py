@@ -67,13 +67,15 @@ def ytgen(video_url: str):
         yt = YouTube(video_url)
         title = yt.title
         description = yt.description
+        print(title, description)
 
         downloader = YoutubeCommentDownloader()
         comments = []
         for comment in downloader.get_comments_from_url(video_url, sort_by="SORT_BY_POPULAR"):
             if "text" in comment:
                 comments.append(comment["text"])
-            if len(comments) >= 100:
+                print(comment["text"])
+            if len(comments) >= 50:
                 break
 
         max_chars = 8000
