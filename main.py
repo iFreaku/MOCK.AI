@@ -4,14 +4,20 @@ import mockai
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 
-print(mockai.ytgen("https://www.youtube.com/watch?v=v3qoy7qhhwE"))
+
 
 app = Flask(__name__)
 CORS(app)
 
 @app.route('/')
 def home():
+    print(mockai.ytgen("https://www.youtube.com/watch?v=v3qoy7qhhwE"))
     return render_template("index.html")
+
+@app.route('/yt')
+def yt():
+    url = request.args.get("url")
+    return mockai.ytgen(url)
 
 @app.route('/generate', methods=['POST'])
 def gen():
