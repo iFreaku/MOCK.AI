@@ -66,6 +66,7 @@ def generate(prompt: str, mock_type: Literal["json", "xml", "yaml", "html"], mes
 def ytgen(video_url: str):
     downloader = YoutubeCommentDownloader()
     rawComments = downloader.get_comments_from_url(video_url, sort_by=0)
+    print(rawComments)
     comments = []
     seen = set()
     for comment in islice(rawComments, 100):
@@ -76,7 +77,7 @@ def ytgen(video_url: str):
                 comments.append(text)
                 if len(comments) >= 50:
                     break
-
+    
     max_chars = 6500
     content = "Top Comments:\n"
     for i, comment in enumerate(comments):
