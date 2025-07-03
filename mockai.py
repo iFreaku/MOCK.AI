@@ -93,7 +93,7 @@ Just the summary no extra system texts, and keep the emoji use subtle!"""
             },
             {
                 "role": "user",
-                "content": content
+                "content": f"""{content}"""
             }
         ]
 
