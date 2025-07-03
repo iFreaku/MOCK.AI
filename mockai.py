@@ -65,34 +65,42 @@ def generate(prompt: str, mock_type: Literal["json", "xml", "yaml", "html"], mes
 
 def ytgen(video_url: str):
     try:
+        # 🔹 Extract video ID (optional, for logging)
         try:
             video_id = parse_qs(urlparse(video_url).query).get("v", [""])[0]
         except Exception as e:
             print("❌ Failed to extract video ID:", e)
             return f"⚠️ Error extracting video ID: {e}"
 
+        # 🔹 Fetch & filter unique comments
         try:
             downloader = YoutubeCommentDownloader()
             raw_comments = downloader.get_comments_from_url(video_url, sort_by=0)
 
             comments = []
-            for comment in islice(raw_comments, 100):
+            seen = set()
+            for comment in islice(raw_comments, 150):  # extra buffer to get 50 unique
                 if isinstance(comment, dict) and "text" in comment:
-                    comments.append(comment["text"])
+                    text = comment["text"].strip()
+                    if text and text not in seen:
+                        seen.add(text)
+                        comments.append(text)
+                if len(comments) >= 50:
+                    break
         except Exception as e:
             print("❌ Error processing comment list:", e)
             return f"⚠️ Error processing comments: {e}"
 
-
+        # 🔹 Build trimmed prompt string
         try:
             max_chars = 6500
             content = "Top Comments:\n"
             for i, comment in enumerate(comments):
                 clean = (
-                    comment.strip()
-                    .replace('"', '(doublequotes)')
-                    .replace("'", '(singlequotes)')
-                    .replace("\n", " ")
+                    comment.replace('"', '(doublequotes)')
+                           .replace("'", '(singlequotes)')
+                           .replace("\n", " ")
+                           .strip()
                 )
                 line = f"{i+1}. {clean}\n"
                 if len(content) + len(line) > max_chars:
@@ -102,6 +110,7 @@ def ytgen(video_url: str):
             print("❌ Failed to build content string:", e)
             return f"⚠️ Error preparing AI prompt: {e}"
 
+        # 🔹 Call Together AI
         try:
             ai = Together(api_key=random.choice(keys))
             response = ai.chat.completions.create(
@@ -113,7 +122,7 @@ def ytgen(video_url: str):
 Your job is to write a <b>brief</b>, concise summary of a YouTube video's comments and reactions.
 Use <b>HTML tags</b> (like <b>, <i>, <span>) for styling, and insert emojis 🎯 beside relevant words (like love ❤️, sad 😢, cringe 😬, music 🎵, edit ✂️).
 Don't use Markdown or JSON. Just return a styled, emoji-enhanced HTML string.
-Just the summary no extra system texts, and keep the emoji use subtle!"""
+Just the summary, no extra system texts, and keep the emoji use subtle!"""
                     },
                     {
                         "role": "user",
@@ -126,6 +135,7 @@ Just the summary no extra system texts, and keep the emoji use subtle!"""
             print("❌ Together API call failed:", e)
             return f"⚠️ Error during AI call: {e}"
 
+        # 🔹 Extract response
         try:
             if hasattr(response, "choices") and response.choices:
                 return response.choices[0].message.content.strip()
