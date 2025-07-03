@@ -75,7 +75,7 @@ def ytgen(video_url: str):
 
         # Trim to ~6500 characters max
         max_chars = 6500
-        content = f"Top Comments:\n"
+        content = f"""Top Comments:\n"""
         for i, comment in enumerate(comments):
             clean = (
                 comment.strip()
@@ -88,26 +88,25 @@ def ytgen(video_url: str):
                 break
             content += line
 
-        messages = [
-            {
-                "role": "system",
-                "content": """You are a smart YouTube comment summarizer 🤖.
-Your job is to write a <b>brief</b>, concise summary of a YouTube video's comments and reactions.
-Use <b>HTML tags</b> (like <b>, <i>, <span>) for styling, and insert emojis 🎯 beside relevant words (like love ❤️, sad 😢, cringe 😬, music 🎵, edit ✂️).
-Don't use Markdown or JSON. Just return a styled, emoji-enhanced HTML string.
-Just the summary no extra system texts, and keep the emoji use subtle!"""
-            },
-            {
-                "role": "user",
-                "content": content
-            }
-        ]
+        message = 
 
         ai = Together(api_key=random.choice(keys))
         response = ai.chat.completions.create(
             model=model,
-            messages=messages,
-            max_tokens=512
+            messages=[
+                {
+                    "role": "system",
+                    "content": """You are a smart YouTube comment summarizer 🤖.
+    Your job is to write a <b>brief</b>, concise summary of a YouTube video's comments and reactions.
+    Use <b>HTML tags</b> (like <b>, <i>, <span>) for styling, and insert emojis 🎯 beside relevant words (like love ❤️, sad 😢, cringe 😬, music 🎵, edit ✂️).
+    Don't use Markdown or JSON. Just return a styled, emoji-enhanced HTML string.
+    Just the summary no extra system texts, and keep the emoji use subtle!"""
+                },
+                {
+                    "role": "user",
+                    "content": content
+                }
+            ]
         )
 
         if hasattr(response, "choices") and response.choices:
