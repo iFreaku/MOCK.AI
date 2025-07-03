@@ -65,57 +65,82 @@ def generate(prompt: str, mock_type: Literal["json", "xml", "yaml", "html"], mes
 
 def ytgen(video_url: str):
     try:
-        video_id = parse_qs(urlparse(video_url).query).get("v", [""])[0]
+        try:
+            video_id = parse_qs(urlparse(video_url).query).get("v", [""])[0]
+        except Exception as e:
+            print("❌ Failed to extract video ID:", e)
+            return f"⚠️ Error extracting video ID: {e}"
 
-        downloader = YoutubeCommentDownloader()
-        comments = []
-        for comment in islice(downloader.get_comments_from_url(video_url, sort_by=0), 100):
-            if "text" in comment:
-                comments.append(comment["text"])
+        try:
+            downloader = YoutubeCommentDownloader()
+            raw_comments = downloader.get_comments_from_url(video_url, sort_by=0)
+        except Exception as e:
+            print("❌ Failed to initialize or fetch comments:", e)
+            return f"⚠️ Error fetching comments: {e}"
 
-        # Trim to ~6500 characters max
-        max_chars = 6500
-        content = f"""Top Comments:\n"""
-        for i, comment in enumerate(comments):
-            clean = (
-                comment.strip()
-                .replace('"', '(doublequotes)')
-                .replace("'", '(singlequotes)')
-                .replace("\n", " ")
+        try:
+            comments = []
+            for comment in islice(raw_comments, 100):
+                if "text" in comment:
+                    comments.append(comment["text"])
+        except Exception as e:
+            print("❌ Error while processing comment list:", e)
+            return f"⚠️ Error processing comments: {e}"
+
+        try:
+            max_chars = 6500
+            content = "Top Comments:\n"
+            for i, comment in enumerate(comments):
+                clean = (
+                    comment.strip()
+                    .replace('"', '(doublequotes)')
+                    .replace("'", '(singlequotes)')
+                    .replace("\n", " ")
+                )
+                line = f"{i+1}. {clean}\n"
+                if len(content) + len(line) > max_chars:
+                    break
+                content += line
+        except Exception as e:
+            print("❌ Failed to build content string:", e)
+            return f"⚠️ Error preparing AI prompt: {e}"
+
+        try:
+            ai = Together(api_key=random.choice(keys))
+            response = ai.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": """You are a smart YouTube comment summarizer 🤖.
+Your job is to write a <b>brief</b>, concise summary of a YouTube video's comments and reactions.
+Use <b>HTML tags</b> (like <b>, <i>, <span>) for styling, and insert emojis 🎯 beside relevant words (like love ❤️, sad 😢, cringe 😬, music 🎵, edit ✂️).
+Don't use Markdown or JSON. Just return a styled, emoji-enhanced HTML string.
+Just the summary no extra system texts, and keep the emoji use subtle!"""
+                    },
+                    {
+                        "role": "user",
+                        "content": content
+                    }
+                ],
+                max_tokens=512
             )
-            line = f"{i+1}. {clean}\n"
-            if len(content) + len(line) > max_chars:
-                break
-            content += line
+        except Exception as e:
+            print("❌ Together API call failed:", e)
+            return f"⚠️ Error during AI call: {e}"
 
-        message = 
-
-        ai = Together(api_key=random.choice(keys))
-        response = ai.chat.completions.create(
-            model=model,
-            messages=[
-                {
-                    "role": "system",
-                    "content": """You are a smart YouTube comment summarizer 🤖.
-    Your job is to write a <b>brief</b>, concise summary of a YouTube video's comments and reactions.
-    Use <b>HTML tags</b> (like <b>, <i>, <span>) for styling, and insert emojis 🎯 beside relevant words (like love ❤️, sad 😢, cringe 😬, music 🎵, edit ✂️).
-    Don't use Markdown or JSON. Just return a styled, emoji-enhanced HTML string.
-    Just the summary no extra system texts, and keep the emoji use subtle!"""
-                },
-                {
-                    "role": "user",
-                    "content": content
-                }
-            ]
-        )
-
-        if hasattr(response, "choices") and response.choices:
-            return response.choices[0].message.content.strip()
-        else:
-            print("❌ Empty or invalid response:", response)
-            return "⚠️ Failed to get summary from AI."
+        try:
+            if hasattr(response, "choices") and response.choices:
+                return response.choices[0].message.content.strip()
+            else:
+                print("❌ Empty or invalid response from Together:", response)
+                return "⚠️ Failed to get summary from AI."
+        except Exception as e:
+            print("❌ Error extracting summary content:", e)
+            return f"⚠️ Error reading AI response: {e}"
 
     except Exception as e:
-        print("🔥 ytgen error:", e)
-        return f"❌ Error: {str(e)}"
+        print("🔥 Unexpected ytgen error:", e)
+        return f"❌ Unexpected error: {str(e)}"
+
 
