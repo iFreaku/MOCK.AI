@@ -77,7 +77,7 @@ def ytgen(video_url: str):
         max_chars = 6500
         content = f"Top Comments:\n"
         for i, comment in enumerate(comments):
-            line = f"{i+1}. {comment}\n"
+            line = f"{i+1}. {comment.strip().replace('"', "(doubleqoutes)")}\n"
             if len(content) + len(line) > max_chars:
                 break
             content += line
@@ -103,7 +103,8 @@ Just the summary no extra system texts, and keep the emoji use subtle!"""
             messages=messages
         )
 
-        return response.choices[0].message.content.strip()
+        return response.choices[0].message.content
 
     except Exception as e:
+        print("Issue in ytgen:")
         return str(e)
