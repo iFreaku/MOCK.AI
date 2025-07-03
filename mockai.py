@@ -68,10 +68,17 @@ def ytgen(video_url: str):
         # 🔹 Get comments
         try:
             downloader = YoutubeCommentDownloader()
+            rawComments = downloader.get_comments_from_url(video_url, sort_by=0)
             comments = []
-            for comment in islice(downloader.get_comments_from_url(video_url, sort_by=0), 100):
+            seen = set()
+            for comment in islice(raw_comments, 100):
                 if isinstance(comment, dict) and "text" in comment:
-                    comments.append(comment["text"])
+                    text = comment["text"].strip()
+                    if text and text not in seen:
+                        seen.add(text)
+                        comments.append(text)
+                        if len(comments) >= 50:
+                            break
         except Exception as e:
             print("❌ Error processing comment list:", e)
             return f"⚠️ Error processing comments: {e}"
