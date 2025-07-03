@@ -73,11 +73,17 @@ def ytgen(video_url: str):
             if "text" in comment:
                 comments.append(comment["text"])
 
-        # Trim to ~6500 chars max
+        # Trim to ~6500 characters max
         max_chars = 6500
         content = f"Top Comments:\n"
         for i, comment in enumerate(comments):
-            line = f"{i+1}. {comment.strip().replace('"', "(doubleqoutes)")}\n"
+            clean = (
+                comment.strip()
+                .replace('"', '(doublequotes)')
+                .replace("'", '(singlequotes)')
+                .replace("\n", " ")
+            )
+            line = f"{i+1}. {clean}\n"
             if len(content) + len(line) > max_chars:
                 break
             content += line
@@ -93,18 +99,24 @@ Just the summary no extra system texts, and keep the emoji use subtle!"""
             },
             {
                 "role": "user",
-                "content": f"""{content}"""
+                "content": content
             }
         ]
 
         ai = Together(api_key=random.choice(keys))
         response = ai.chat.completions.create(
             model=model,
-            messages=messages
+            messages=messages,
+            max_tokens=512
         )
 
-        return response.choices[0].message.content
+        if hasattr(response, "choices") and response.choices:
+            return response.choices[0].message.content.strip()
+        else:
+            print("❌ Empty or invalid response:", response)
+            return "⚠️ Failed to get summary from AI."
 
     except Exception as e:
-        print("Issue in ytgen:")
-        return str(e)
+        print("🔥 ytgen error:", e)
+        return f"❌ Error: {str(e)}"
+
