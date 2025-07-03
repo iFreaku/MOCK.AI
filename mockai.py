@@ -71,7 +71,7 @@ def ytgen(video_url: str):
             rawComments = downloader.get_comments_from_url(video_url, sort_by=0)
             comments = []
             seen = set()
-            for comment in islice(raw_comments, 100):
+            for comment in islice(rawComments, 100):
                 if isinstance(comment, dict) and "text" in comment:
                     text = comment["text"].strip()
                     if text and text not in seen:
