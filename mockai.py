@@ -74,18 +74,15 @@ def ytgen(video_url: str):
         try:
             downloader = YoutubeCommentDownloader()
             raw_comments = downloader.get_comments_from_url(video_url, sort_by=0)
-        except Exception as e:
-            print("❌ Failed to initialize or fetch comments:", e)
-            return f"⚠️ Error fetching comments: {e}"
 
-        try:
             comments = []
             for comment in islice(raw_comments, 100):
-                if "text" in comment:
+                if isinstance(comment, dict) and "text" in comment:
                     comments.append(comment["text"])
         except Exception as e:
-            print("❌ Error while processing comment list:", e)
+            print("❌ Error processing comment list:", e)
             return f"⚠️ Error processing comments: {e}"
+
 
         try:
             max_chars = 6500
@@ -142,5 +139,3 @@ Just the summary no extra system texts, and keep the emoji use subtle!"""
     except Exception as e:
         print("🔥 Unexpected ytgen error:", e)
         return f"❌ Unexpected error: {str(e)}"
-
-
