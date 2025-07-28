@@ -4,9 +4,20 @@ import mockai
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 import db  # db.py file for mongodb
+from bson import ObjectId
 
 app = Flask(__name__)
 CORS(app)
+
+def convert_objectid_to_str(obj):
+    if isinstance(obj, list):
+        return [convert_objectid_to_str(o) for o in obj]
+    elif isinstance(obj, dict):
+        return {k: convert_objectid_to_str(v) for k, v in obj.items()}
+    elif isinstance(obj, ObjectId):
+        return str(obj)
+    else:
+        return obj
 
 @app.route('/')
 def home():
@@ -42,7 +53,11 @@ def signup():
     user = db.create_user(name, number, password, birthday)
     if user is None:
         return jsonify({"error": "User already exists"}), 409
-    return jsonify({"message": "User created successfully", "user": {"name": user["name"], "number": user["number"], "birthday": user["birthday"]}}), 201
+    return jsonify({
+        "message": "User created successfully", 
+        "user": {"name": user["name"], "number": user["number"], "birthday": user["birthday"]}
+    }), 201
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -55,7 +70,9 @@ def login():
     if user is None:
         return jsonify({"error": "Invalid credentials"}), 401
     user.pop("password", None)
-    return jsonify({"message": "Login successful", "user": user})
+    user_clean = convert_objectid_to_str(user)
+    return jsonify({"message": "Login successful", "user": user_clean})
+
 
 @app.route('/reminders', methods=['GET'])
 def get_reminders():
@@ -63,7 +80,9 @@ def get_reminders():
     if not number:
         return jsonify({"error": "User number required"}), 400
     reminders = db.get_reminders(number)
-    return jsonify({"reminders": reminders})
+    reminders_clean = convert_objectid_to_str(reminders)
+    return jsonify({"reminders": reminders_clean})
+
 
 @app.route('/reminders', methods=['POST'])
 def add_reminder():
@@ -80,6 +99,7 @@ def add_reminder():
         return jsonify({"error": "Failed to add reminder"}), 500
     return jsonify({"message": "Reminder added", "reminder_id": reminder_id}), 201
 
+
 @app.route('/reminders/<reminder_id>', methods=['PUT'])
 def update_reminder(reminder_id):
     data = request.get_json() or {}
@@ -95,6 +115,7 @@ def update_reminder(reminder_id):
         return jsonify({"error": "Update failed"}), 404
     return jsonify({"message": "Reminder updated"})
 
+
 @app.route('/reminders/<reminder_id>', methods=['DELETE'])
 def delete_reminder(reminder_id):
     user_number = request.args.get("user_number")
@@ -105,12 +126,15 @@ def delete_reminder(reminder_id):
         return jsonify({"error": "Delete failed"}), 404
     return jsonify({"message": "Reminder deleted"})
 
+
 @app.route('/profile/<number>', methods=['GET'])
 def get_profile(number):
     user = db.get_user_profile(number)
     if not user:
         return jsonify({"error": "User not found"}), 404
-    return jsonify({"user": user})
+    user_clean = convert_objectid_to_str(user)
+    return jsonify({"user": user_clean})
+
 
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 10000))  # Use Render's PORT or default to 10000
