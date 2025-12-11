@@ -116,7 +116,7 @@ def ytgen(video_url: str):
     response = requests.post("https://text.pollinations.ai/", json=payload)
         
     if response.status_code == 200:
-        return response.text.strip().decode('utf-8')
+        return response.content.strip().decode('utf-8')
     else:
         print("❌ Empty or invalid response from Pollinations:", response)
         return "⚠️ Failed to get summary from AI."
