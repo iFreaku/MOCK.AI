@@ -92,7 +92,6 @@ def ytgen(video_url: str):
             break
         content += line
 
-    api_url = "https://text.pollinations.ai/"
     
     payload = {
         "messages": [
@@ -114,22 +113,13 @@ Just the summary no extra system texts, and keep the emoji use subtle!"""
         "token": "cAWacq-qK9kI6KLa"
     }
     
-    try:
-        response = requests.post(api_url, json=payload, timeout=30)
-        response.raise_for_status()
-        
-        result = response.json()
-        
-        if isinstance(result, dict) and "message" in result:
-            return result["message"].strip()
-        elif isinstance(result, str):
-            return result.strip()
-        else:
-            print("❌ Unexpected response format from Pollinations:", result)
-            return "⚠️ Failed to get summary from AI."
-            
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Error calling Pollinations.ai: {e}")
-        return "⚠️ Network error while fetching summary."
+    response = requests.post("https://text.pollinations.ai/", json=payload)
+    
+    if response.status_code == 200:
+        return response.text.strip()
+    else:
+        print("❌ Empty or invalid response from Pollinations:", response)
+        return "⚠️ Failed to get summary from AI."
+
 
 
