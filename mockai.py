@@ -69,7 +69,7 @@ def ytgen(video_url: str):
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     })
     rawComments = downloader.get_comments_from_url(video_url, sort_by=0)
-    print(rawComments)
+    
     comments = []
     seen = set()
     for comment in islice(rawComments, 100):
@@ -94,6 +94,8 @@ def ytgen(video_url: str):
         if len(content) + len(line) > max_chars:
             break
         content += line
+    
+    print(content)
 
     
     payload = {
