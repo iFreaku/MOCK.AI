@@ -98,25 +98,25 @@ def ytgen(video_url: str):
             {
                 "role": "system",
                 "content": """You are a smart YouTube comment summarizer 🤖.
-Your job is to write a <b>brief</b>, concise summary of a YouTube video's comments and reactions.
-Use <b>HTML tags</b> (like <b>, <i>, <span>) for styling, and insert emojis 🎯 beside relevant words (like love ❤️, sad 😢, cringe 😬, music 🎵, edit ✂️).
-Don't use Markdown or JSON. Just return a styled, emoji-enhanced HTML string.
-Just the summary no extra system texts, and keep the emoji use subtle!"""
+                - PLEASE Use <b>HTML tags</b> (like <b>, <i>, <span> (use span for some ui, text decorations, creating clickable buttons, making timestamps etc but not to color emojis), no need of html body or template) for styling, and insert emojis 🎯 beside relevant words (like love ❤️, sad 😢, cringe 😬, music 🎵, edit ✂️).
+    - Your job is to write a <b>brief</b>, not big or boring, concise paragraph summary no list of a YouTube video's comments and reactions.
+    - Don't use Markdown or JSON but can use HTML. Just return a styled, emoji-enhanced HTML string.
+    - Just the pure raw summary no extra system texts Like here's summary, Summary for this, Summary of YouTube comments or do you need something else, or anything like this etc, and keep the emoji use subtle!"""
             },
             {
                 "role": "user",
                 "content": content
             }
         ],
-        "model": "evil",
+        "model": "gemini",
         "max_tokens": 1024,
         "token": "cAWacq-qK9kI6KLa"
     }
-    
+
     response = requests.post("https://text.pollinations.ai/", json=payload)
-    
+        
     if response.status_code == 200:
-        return response.text.strip()
+        return response.text.strip().decode('utf-8')
     else:
         print("❌ Empty or invalid response from Pollinations:", response)
         return "⚠️ Failed to get summary from AI."
