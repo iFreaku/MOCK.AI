@@ -65,6 +65,9 @@ def generate(prompt: str, mock_type: Literal["json", "xml", "yaml", "html"], mes
 
 def ytgen(video_url: str):
     downloader = YoutubeCommentDownloader()
+    downloader.session.headers.update({
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    })
     rawComments = downloader.get_comments_from_url(video_url, sort_by=0)
     print(rawComments)
     comments = []
