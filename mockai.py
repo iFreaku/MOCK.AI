@@ -1,6 +1,6 @@
 import os
 import json
-import random
+import random, requests
 from together import Together
 from typing import Literal
 from urllib.parse import urlparse, parse_qs
@@ -92,10 +92,10 @@ def ytgen(video_url: str):
             break
         content += line
 
-    ai = Together(api_key=random.choice(keys))
-    response = ai.chat.completions.create(
-        model=model,
-        messages=[
+    api_url = "https://text.pollinations.ai/"
+    
+    payload = {
+        "messages": [
             {
                 "role": "system",
                 "content": """You are a smart YouTube comment summarizer 🤖.
@@ -109,12 +109,27 @@ Just the summary no extra system texts, and keep the emoji use subtle!"""
                 "content": content
             }
         ],
-        max_tokens=512
-    )
+        "model": "evil",
+        "max_tokens": 1024,
+        "token": "cAWacq-qK9kI6KLa"
+    }
+    
+    try:
+        response = requests.post(api_url, json=payload, timeout=30)
+        response.raise_for_status()
+        
+        result = response.json()
+        
+        if isinstance(result, dict) and "message" in result:
+            return result["message"].strip()
+        elif isinstance(result, str):
+            return result.strip()
+        else:
+            print("❌ Unexpected response format from Pollinations:", result)
+            return "⚠️ Failed to get summary from AI."
+            
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Error calling Pollinations.ai: {e}")
+        return "⚠️ Network error while fetching summary."
 
-    if hasattr(response, "choices") and response.choices:
-        return response.choices[0].message.content.strip()
-    else:
-        print("❌ Empty or invalid response from Together:", response)
-        return "⚠️ Failed to get summary from AI."
 
